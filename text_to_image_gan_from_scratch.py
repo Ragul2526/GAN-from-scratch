@@ -13,6 +13,7 @@ import torchvision.transforms as transforms
 #from torch.utils.tensorboard import SummaryWriter
 import matplotlib.pyplot as plt
 import clip 
+from torch.cuda.amp import autocast,GradScaler
 from torch.nn.utils import spectral_norm
 label_to_text={
     0: "a photo of an airplane in the sky",
@@ -97,7 +98,7 @@ feature_g = 64
 feature_d = 64
 
 batch_size = 64
-epochs = 10
+epochs = 50
 
 clip_model,_ = clip.load("ViT-B/32", device = device)
 clip_model.eval()
@@ -115,18 +116,19 @@ fixed_token = clip.tokenize(fixed_text).to(device)
 with torch.no_grad():
     fixed_emb = clip_model.encode_text(fixed_token).float()
 transform = transforms.Compose([
-    transforms.Resize((64,64)),
+    transforms.Resize((32,32)),
     transforms.ToTensor(),
     transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5))
     ])
 datasets = Datasets.CIFAR10(root="dataset/", transform=transform, download=True)
 
-loader =  DataLoader(datasets,batch_size = batch_size, shuffle = True)
+loader = DataLoader(datasets,batch_size = batch_size, shuffle = True, num_workers= 4)
 optimizer_d = optim.Adam(disc.parameters(),lr = lr, betas = (0.5, 0.999))
 optimizer_g = optim.Adam(gen.parameters(),lr = lr, betas = (0.5, 0.999))
 criterion = nn.BCELoss()
-
+start_epoch = 1
 #uncomment the below to load the saved model and continue training 
+
 '''
 checkpoint = torch.load('checkpoint.pth')
 gen.load_state_dict(checkpoint['generator'])
@@ -136,21 +138,23 @@ optimizer_d.load_state_dict(checkpoint['optimizer_d'])
 start_epoch = checkpoint['epoch'] + 1
 '''
 
-#%%
+
 fixed_real,_=next(iter(loader))
 print(fixed_real.shape)
+with torch.no_grad():
+    all_text_embeds = {}
+    for label, text in label_to_text.items():
+        tokens = clip.tokenize([text]).to(device)
+        all_text_embeds[label] = clip_model.encode_text(tokens).float()
 from tqdm import tqdm
 for epoch in range(start_epoch,start_epoch+epochs+1):
-    pbar = tqdm(loader, desc=f"Epoch {epoch}/{epochs}")
+    pbar = tqdm(loader, desc=f"Epoch {epoch}/{start_epoch + epochs}")
     
     for batch_idx, (real,labels) in enumerate(pbar):
         real =  real.to(device)
         batch_size = real.shape[0]
         #Text embeddings for this batch
-        texts = [label_to_text[l.item()] for l in labels]
-        token = clip.tokenize(texts).to(device)
-        with torch.no_grad():
-            text_emb = clip_model.encode_text(token).float()
+        text_emb = torch.cat([all_text_embeds[l.item()] for l in labels])
             
         #Training the Disctiminator
         
@@ -207,4 +211,17 @@ torch.save({
     'optimizer_d': optimizer_d.state_dict(),
     'epoch': epoch
 }, 'checkpoint.pth')
+#%%
+gen.eval()
+with torch.no_grad():
+    fake = gen(fixed_noise, fixed_emb)
+    data = fixed_real
+    img_grid_fake = torchvision.utils.make_grid(fake[:16], normalize= True)
+   
+    plt.figure(figsize=(12, 4))
+    plt.imshow(img_grid_fake.permute(1, 2, 0).cpu())
+    plt.title("Generated image")
+    plt.axis("off")
+    plt.tight_layout()
+    plt.show()
 

@@ -30,7 +30,7 @@ from torch.utils.data import DataLoader
 import torchvision.transforms as transforms
 #from torch.utils.tensorboard import SummaryWriter
 import matplotlib.pyplot as plt
- 
+from tqdm import tqdm
 class Discriminator(nn.Module):
     def __init__(self, feat):
         super().__init__()
@@ -77,15 +77,7 @@ disc = Discriminator(img_dim).to(device)
 gen = Generator(z_dim, img_dim).to(device)
 gen = Generator(z_dim, img_dim).to(device)
 start_epoch = 1
-#Uncomment for continue training
-'''
-checkpoint = torch.load('Model_weight/mnist_gan_weights.pth')
-gen.load_state_dict(checkpoint['generator'])
-disc.load_state_dict(checkpoint['discriminator'])
-optimizer_g.load_state_dict(checkpoint['optimizer_g'])
-optimizer_d.load_state_dict(checkpoint['optimizer_d'])
-start_epoch = checkpoint['epoch'] + 1
-'''
+
 
 
 
@@ -100,7 +92,17 @@ optimizer_d = optim.Adam(disc.parameters(),lr = 3e-5)
 optimizer_g = optim.Adam(gen.parameters(),lr = lr)
 criterion = nn.BCELoss()
 fixed_real,_ = next(iter(loader))
-from tqdm import tqdm
+#Uncomment for continue training
+
+'''
+checkpoint = torch.load('Model_weights/mnist_gan_weights.pth')
+gen.load_state_dict(checkpoint['generator'])
+disc.load_state_dict(checkpoint['discriminator'])
+optimizer_g.load_state_dict(checkpoint['optimizer_g'])
+optimizer_d.load_state_dict(checkpoint['optimizer_d'])
+start_epoch = checkpoint['epoch'] + 1
+'''
+
 
 for epoch in range(start_epoch,start_epoch + epochs + 1):
     pbar = tqdm(loader, desc=f"Epoch {epoch}/{epochs+90}")
@@ -169,7 +171,7 @@ noise = torch.randn(32, z_dim).to(device)
 with torch.no_grad():
     fake = gen(noise).reshape(-1,1,28,28)
     img_grid_fake = torchvision.utils.make_grid(fake, normalize= True)
-    plt.imshow(img_grid_real.permute(1, 2, 0).cpu())
+    plt.imshow(img_grid_fake.permute(1, 2, 0).cpu())
     plt.title("Generated Image from noise")
     plt.axis("off")
     plt.tight_layout()
