@@ -1,0 +1,13 @@
+# Spyder IDE
+.spyproject/
+
+# Downloaded datasets
+dataset/
+
+# Python cache
+__pycache__/
+*.pyc
+
+
+# Checkpoint added to .gitignore since CIFAR training is not done
+checkpoint.pth
