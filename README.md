@@ -1,10 +1,10 @@
 # GAN from Scratch
 
-Two GANs built from scratch. 1. Unconditional GAN trained on MNIST — generates handwritten digits from random noise. 2. Text-conditioned DCGAN trained on CIFAR-10 — generates images based on text descriptions of each class using CLIP embeddings.
+Two GANs built from scratch. 1. Unconditional GAN trained on MNIST - generates handwritten digits from random noise. 2. Text-conditioned DCGAN trained on CIFAR-10 - generates images based on text descriptions of each class using CLIP embeddings.
 
 ---
 
-## Part 1 — Unconditional GAN (MNIST)
+## Part 1 - Unconditional GAN (MNIST)
 
 ### What is it?
 A simple GAN trained on the MNIST dataset. The generator takes random noise as input and learns to generate handwritten digit images. The discriminator learns to distinguish real MNIST images from generated fakes.
@@ -29,7 +29,7 @@ Discriminator: 28x28 image → Linear → LeakyReLU → Linear → LeakyReLU →
 ![MNIST Epoch 100](Assets/mnist_epoch100.png)
 
 ### Limitation
-The generator has no concept of which digit to generate — it just learns what MNIST images look like in general. This is why Part 2 adds text conditioning.
+The generator has no concept of which digit to generate - it just learns what MNIST images look like in general. This is why Part 2 adds text conditioning.
 
 ### Evaluation
 ![MNIST Evaluation](Assets/mnist_eval.png)
@@ -41,7 +41,7 @@ python mnist_gan.py
 ```
 
 ### Saved weights
-Pre-trained weights available in `Model_weights/` — load and generate without retraining:
+Pre-trained weights available in `Model_weights/` - load and generate without retraining:
 ```python
 checkpoint = torch.load('Model_weights/mnist_gan_weights.pth')
 gen.load_state_dict(checkpoint['generator'])
@@ -54,7 +54,7 @@ with torch.no_grad():
 
 ---
 
-## Part 2 — Text-conditioned DCGAN (CIFAR-10)
+## Part 2 - Text-conditioned DCGAN (CIFAR-10)
 
 ### What is it?
 A text-conditioned Deep Convolutional GAN trained on CIFAR-10. Both the generator and discriminator are conditioned on CLIP text embeddings — the generator learns to produce images that match a text description, and the discriminator learns to judge whether an image matches its description.
@@ -143,15 +143,15 @@ numpy
 
 ---
 
-## Part 3 — Distribution Regularization GAN (College Final Year Project)
+## Part 3 - Distribution Regularization GAN (College Final Year Project)
 
 ### What is it?
-A text-to-image GAN based on the IEEE published paper **"Distribution Regularization for Text-to-Image Generation"** — implemented as a final year college project. Trained on the CUB-200 birds dataset and MS-COCO dataset with a BiLSTM text encoder and multi-scale generator/discriminator architecture (3 generators + 3 discriminators at 64x64, 128x128, 256x256 resolution).
+A text-to-image GAN based on the IEEE published paper **"Distribution Regularization for Text-to-Image Generation"** - implemented as a final year college project. Trained on the CUB-200 birds dataset and MS-COCO dataset with a BiLSTM text encoder and multi-scale generator/discriminator architecture (3 generators + 3 discriminators at 64x64, 128x128, 256x256 resolution).
 
 ### Why it's not in this repo
 The model is not included because:
 - Results were not reproducible even using the authors' own saved weights
-- The BiLSTM text encoder trained on CUB-200 (11,788 images) lacks semantic understanding — too small a dataset for meaningful text conditioning
+- The BiLSTM text encoder trained on CUB-200 (11,788 images) lacks semantic understanding - too small a dataset for meaningful text conditioning
 - Multi-scale architecture (3G + 3D) is extremely sensitive to hyperparameter tuning and training balance
 - Even the original paper's claimed outputs could not be reproduced consistently
 
