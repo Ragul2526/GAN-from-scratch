@@ -158,6 +158,7 @@ A text-to-image GAN based on the IEEE published paper **"Distribution Regulariza
 The model is not included because:
 - Results were not reproducible even using the authors' own saved weights
 - The BiLSTM text encoder trained on CUB-200 (11,788 images) lacks semantic understanding - too small a dataset for meaningful text conditioning
+- MS-COCO alone is 25GB - not practical to include or reproduce in a normal environment
 - Multi-scale architecture (3G + 3D) is extremely sensitive to hyperparameter tuning and training balance
 - Even the original paper's claimed outputs could not be reproduced consistently
 
@@ -170,5 +171,7 @@ This failure directly motivated Parts 1 and 2 of this repo:
 ### Reference
 > Distribution Regularization for Text-to-Image Generation
 > Published in IEEE Transactions on Neural Networks and Learning Systems
+
+---
 
 > *"Understanding why something fails is more valuable than making it work by luck"*
