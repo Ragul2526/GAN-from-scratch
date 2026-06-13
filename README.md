@@ -22,10 +22,10 @@ Discriminator: 28x28 image → Linear → LeakyReLU → Linear → LeakyReLU →
 
 ### Training progress
 
-#### Epoch 1 — random noise, no structure
+#### Epoch 1 - random noise, no structure
 ![MNIST Epoch 1](Assets/mnist_epoch01.png)
 
-#### Epoch 100 — recognizable digits forming
+#### Epoch 100 - recognizable digits forming
 ![MNIST Epoch 100](Assets/mnist_epoch100.png)
 
 ### Limitation
@@ -50,6 +50,12 @@ gen.eval()
 noise = torch.randn(32, 128).to(device)
 with torch.no_grad():
     fake = gen(noise).reshape(-1, 1, 28, 28)
+    img_grid_fake = torchvision.utils.make_grid(fake, normalize= True)
+    plt.imshow(img_grid_fake.permute(1, 2, 0).cpu())
+    plt.title("Generated Image from noise")
+    plt.axis("off")
+    plt.tight_layout()
+    plt.show()
 ```
 
 ---
@@ -57,7 +63,7 @@ with torch.no_grad():
 ## Part 2 - Text-conditioned DCGAN (CIFAR-10)
 
 ### What is it?
-A text-conditioned Deep Convolutional GAN trained on CIFAR-10. Both the generator and discriminator are conditioned on CLIP text embeddings — the generator learns to produce images that match a text description, and the discriminator learns to judge whether an image matches its description.
+A text-conditioned Deep Convolutional GAN trained on CIFAR-10. Both the generator and discriminator are conditioned on CLIP text embeddings - the generator learns to produce images that match a text description, and the discriminator learns to judge whether an image matches its description.
 
 ### Architecture
 
@@ -66,7 +72,7 @@ Generator:    noise (128) + CLIP embedding (512) → ConvTranspose2d → Upsampl
 Discriminator: 64x64 image + CLIP text projection → Conv2d blocks → Sigmoid
 
 ### Why CLIP?
-Earlier text-to-image GANs (StackGAN, AttnGAN) used BiLSTM as the text encoder — trained from scratch alongside the GAN. CLIP replaces this with a pretrained text encoder trained on 400M image-text pairs, giving the model rich semantic understanding of text without needing massive datasets.
+Earlier text-to-image GANs (StackGAN, AttnGAN) used BiLSTM as the text encoder - trained from scratch alongside the GAN. CLIP replaces this with a pretrained text encoder trained on 400M image-text pairs, giving the model rich semantic understanding of text without needing massive datasets.
 
 ### Text descriptions used
 ```python
@@ -86,10 +92,10 @@ label_to_text = {
 
 ### Training progress
 
-#### Epoch 1 — random noise
+#### Epoch 1 - random noise
 ![CIFAR Epoch 1](Assets/cifar_epoch01.png)
 
-#### Epoch 15 — color grouping and scene structure emerging
+#### Epoch 15 - color grouping and scene structure emerging
 ![CIFAR Epoch 15](Assets/cifar_epoch15.png)
 
 > CIFAR-10 results will be updated as training progresses
